@@ -2,24 +2,24 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.8.6' // Set this in Jenkins Global Tools Configuration
-             // Set this in Jenkins Global Tools Configuration
+        maven 'Maven 3.8.6'
+        jdk 'JDK 11'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git "https://github.com/iampsrv/javajenkins.git"
+                checkout scm
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean install'
+                sh 'mvn clean package'
             }
         }
-        
-         stage('Test') {
+
+        stage('Test') {
             steps {
                 sh 'mvn test'
             }
@@ -27,7 +27,13 @@ pipeline {
 
         stage('Run') {
             steps {
-                sh 'java -cp target/simple-java-app-1.0-SNAPSHOT.jar com.example.App'
+                sh 'nohup java -jar target/springboot-webapp-0.0.1-SNAPSHOT.jar &'
+            }
+        }
+
+        stage('Archive Artifact') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
     }
